@@ -1,29 +1,32 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
+import { useQueryClient } from "@tanstack/react-query";
 import { logout } from "../redux/authSlice";
 import { toggleTheme } from "../redux/themeSlice";
 import { FiGrid, FiFileText, FiLogOut, FiSun, FiMoon, FiMenu, FiPlus, FiX } from "react-icons/fi";
-
+ 
 const menuItems = [
   { name: "Dashboard", path: "/dashboard", icon: FiGrid },
   { name: "Notes", path: "/notes", icon: FiFileText },
 ];
-
+ 
 function SidebarLayout({ children }) {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [mobileOpen, setMobileOpen] = useState(false);
-
+ 
   const { user } = useSelector((state) => state.auth);
   const { darkMode } = useSelector((state) => state.theme);
-
+ 
   const handleLogout = () => {
+    queryClient.clear();
     dispatch(logout());
     navigate("/login");
   };
-
+ 
   const SidebarContent = () => (
     <div className="flex h-full flex-col justify-between p-6">
       <div>
@@ -35,13 +38,13 @@ function SidebarLayout({ children }) {
             SmartNotes
           </h1>
         </div>
-
+ 
         <div className="mt-6 mb-6 border-2 border-(--color-border-default) bg-(--color-neutral-secondary-medium) p-3.5">
           <h2 className="truncate text-sm font-semibold text-(--color-heading)">
             {user?.name || "User"}
           </h2>
         </div>
-
+ 
         <nav className="space-y-2">
           {menuItems.map((item) => {
             const isActive =
@@ -66,7 +69,7 @@ function SidebarLayout({ children }) {
           })}
         </nav>
       </div>
-
+ 
       <div className="space-y-3">
         <Link
           to="/notes/new"
@@ -76,7 +79,7 @@ function SidebarLayout({ children }) {
           <FiPlus className="h-4 w-4" />
           New Note
         </Link>
-
+ 
         <button
           onClick={() => dispatch(toggleTheme())}
           className="flex w-full items-center gap-3 border-2 border-(--color-border-default) bg-(--color-neutral-primary-soft) px-4 py-2.5 text-sm font-semibold text-(--color-heading) shadow-(--shadow-xs) transition-all hover:bg-(--color-neutral-secondary-medium)"
@@ -84,7 +87,7 @@ function SidebarLayout({ children }) {
           {darkMode ? <FiSun className="h-5 w-5" /> : <FiMoon className="h-5 w-5" />}
           {darkMode ? "Light Mode" : "Dark Mode"}
         </button>
-
+ 
         <button
           onClick={handleLogout}
           className="flex w-full items-center gap-3 border-2 border-(--color-border-default) bg-(--color-danger-soft) px-4 py-2.5 text-sm font-semibold text-(--color-fg-danger-strong) shadow-(--shadow-xs) transition-all hover:bg-(--color-danger-medium)"
@@ -95,13 +98,13 @@ function SidebarLayout({ children }) {
       </div>
     </div>
   );
-
+ 
   return (
     <div className="flex min-h-screen bg-(--color-neutral-secondary-soft) text-(--color-body)">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r-2 border-(--color-border-default) bg-(--color-neutral-primary-soft) md:block">
         <SidebarContent />
       </aside>
-
+ 
       {mobileOpen && (
         <div
           className="fixed inset-0 z-50 bg-black/50 md:hidden"
@@ -115,7 +118,7 @@ function SidebarLayout({ children }) {
           </aside>
         </div>
       )}
-
+ 
       <div className="flex flex-1 flex-col min-w-0">
         <header className="sticky top-0 z-40 flex items-center justify-between border-b-2 border-(--color-border-default) bg-(--color-neutral-primary-soft) px-6 py-4 md:hidden">
           <div className="flex items-center gap-2">
@@ -133,7 +136,7 @@ function SidebarLayout({ children }) {
             {mobileOpen ? <FiX className="h-5 w-5" /> : <FiMenu className="h-5 w-5" />}
           </button>
         </header>
-
+ 
         <main className="mx-auto w-full max-w-7xl flex-1 overflow-x-hidden p-6 md:p-8">
           {children}
         </main>
@@ -141,5 +144,5 @@ function SidebarLayout({ children }) {
     </div>
   );
 }
-
+ 
 export default SidebarLayout;
